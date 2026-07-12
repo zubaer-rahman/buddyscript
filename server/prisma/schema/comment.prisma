@@ -1,0 +1,17 @@
+model Comment {
+    id        Int      @id @default(autoincrement())
+    text      String
+    imageUrl  String?
+    postId    Int
+    authorId  Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    post    Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+    author  User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    replies Reply[]
+    likes   CommentLike[]
+
+    @@index([postId])
+    @@map("comments")
+}

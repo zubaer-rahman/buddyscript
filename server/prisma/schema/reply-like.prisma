@@ -1,0 +1,12 @@
+model ReplyLike {
+    id        Int      @id @default(autoincrement())
+    replyId   Int
+    userId    Int
+    createdAt DateTime @default(now())
+
+    reply Reply @relation(fields: [replyId], references: [id], onDelete: Cascade)
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([replyId, userId])
+    @@map("reply_likes")
+}

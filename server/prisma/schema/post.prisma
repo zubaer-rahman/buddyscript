@@ -1,0 +1,16 @@
+model Post {
+    id        Int      @id @default(autoincrement())
+    text      String?
+    imageUrl  String?
+    isPrivate Boolean  @default(false)
+    authorId  Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    comments Comment[]
+    likes    Like[]
+
+    @@index([authorId])
+    @@map("posts")
+}
