@@ -2,8 +2,18 @@
 
 import { Toaster } from "react-hot-toast";
 import { DarkModeProvider } from "@/context/dark-mode-context";
+import { useEffect } from "react";
+import { authStorage } from "../../../store/auth/storage";
+import { useAuthStore } from "../../../store/auth/authStore";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const user = authStorage.load();
+    if (user) {
+      useAuthStore.setState({ user, isAuthenticated: true });
+    }
+    useAuthStore.getState().setHasHydrated(true);
+  }, []);
   return (
     <DarkModeProvider>
       <Toaster

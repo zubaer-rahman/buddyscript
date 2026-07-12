@@ -93,9 +93,12 @@ const login = async (payload: IUserLoginPayload) => {
     jwtRefreshExpiresIn as SignOptions,
   );
 
+  const { password, ...userWithoutPassword } = user;
+
   return {
     accessToken,
     refreshToken,
+    user: userWithoutPassword,
   };
 };
 
