@@ -1,37 +1,39 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import AppError from "../utils/AppError";
+import httpStatus from "http-status";
+import config from "../config";
 
 const handleCastError = (err: any) => {
-  return new AppError(400, `Invalid ${err.path}: ${err.value}`);
+  return new AppError(httpStatus.BAD_REQUEST, `Invalid ${err.path}: ${err.value}`);
 };
 
 const handleDuplicateFields = (err: any) => {
   const field = Object.keys(err.keyValue || {})[0];
   return new AppError(
-    409,
+    httpStatus.CONFLICT,
     `Duplicate value for ${field}. Please use another value.`,
   );
 };
 
 const handleValidationError = (err: any) => {
   const errors = Object.values(err.errors || {}).map((el: any) => el.message);
-  return new AppError(400, `Invalid input: ${errors.join(". ")}`);
+  return new AppError(httpStatus.BAD_REQUEST, `Invalid input: ${errors.join(". ")}`);
 };
 
 const handlePrismaError = (err: any) => {
   switch (err.code) {
     case "P2002":
       return new AppError(
-        409,
+        httpStatus.CONFLICT,
         "Unique constraint violation. This record already exists.",
       );
     case "P2025":
-      return new AppError(404, "Record not found.");
+      return new AppError(httpStatus.NOT_FOUND, "Record not found.");
     case "P2014":
-      return new AppError(400, "Invalid ID format.");
+      return new AppError(httpStatus.BAD_REQUEST, "Invalid ID format.");
     default:
-      return new AppError(500, "Database error occurred.");
+      return new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Database error occurred.");
   }
 };
 
@@ -40,7 +42,7 @@ const handleZodError = (err: ZodError) => {
     path: issue.path.join("."),
     message: issue.message,
   }));
-  return new AppError(422, "Validation failed", errors);
+  return new AppError(httpStatus.BAD_REQUEST, "Validation failed", errors);
 };
 
 const globalErrorHandler = (
@@ -58,11 +60,11 @@ const globalErrorHandler = (
   else if (err.name === "PrismaClientKnownRequestError")
     error = handlePrismaError(err);
   else if (err.name === "JsonWebTokenError")
-    error = new AppError(401, "Invalid token. Please log in again.");
+    error = new AppError(httpStatus.UNAUTHORIZED, "Invalid token. Please log in again.");
   else if (err.name === "TokenExpiredError")
-    error = new AppError(401, "Token expired. Please log in again.");
+    error = new AppError(httpStatus.UNAUTHORIZED, "Token expired. Please log in again.");
 
-  const statusCode = error.statusCode || 500;
+  const statusCode = error.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
   const message = error.message || "Something went wrong";
 
   res.status(statusCode).json({
@@ -70,7 +72,7 @@ const globalErrorHandler = (
     message,
     ...(error.errors && { errors: error.errors }),
     errorSources:
-      process.env.NODE_ENV === "development"
+      config.node_env === "development"
         ? [{ message: err.stack }]
         : undefined,
   });

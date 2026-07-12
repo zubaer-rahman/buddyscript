@@ -4,6 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
 import AppError from "../../utils/AppError";
 import httpStatus from "http-status";
+import config from "../../config";
 
 const register = catchAsync(async (req: Request, res: Response) => {
   const { accessToken, refreshToken, user } = await AuthService.register(
@@ -37,14 +38,14 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: config.node_env === "production",
     sameSite: "strict",
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: config.node_env === "production",
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
@@ -68,7 +69,7 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: config.node_env === "production",
     sameSite: "strict",
     maxAge: 15 * 60 * 1000,
   });
