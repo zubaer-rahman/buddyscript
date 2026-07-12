@@ -1,0 +1,136 @@
+import bcrypt from "bcryptjs";
+import jwt, { JwtPayload, type SignOptions } from "jsonwebtoken";
+import prisma from "../../lib/prisma";
+import AppError from "../../utils/AppError";
+import config from "../../config";
+import httpStatus from "http-status";
+import { IUserLoginPayload, IUserRegisterPayload } from "./auth.interface";
+import { jwtUtils } from "../../utils/jwt";
+
+const jwtAccessSecret = config.jwt_access_secret as string;
+const jwtRefreshSecret = config.jwt_refresh_secret as string;
+const jwtAccessExpiresIn = config.jwt_access_expires_in;
+const jwtRefreshExpiresIn = config.jwt_refresh_expires_in;
+
+const register = async (payload: IUserRegisterPayload) => {
+  const { email, password, firstName, lastName } = payload;
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (existingUser) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "A user with this email already exists",
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    password,
+    Number(config.bcrypt_salt_rounds) || 12,
+  );
+
+  const createdUser = await prisma.user.create({
+    data: {
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    },
+  });
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: createdUser.id, email: createdUser.email },
+    omit: {
+      password: true,
+    },
+  });
+  const jwtPayload = {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+  };
+  const accessToken = jwtUtils.createToken(
+    jwtPayload,
+    jwtAccessSecret,
+    jwtAccessExpiresIn as SignOptions,
+  );
+
+  const refreshToken = jwtUtils.createToken(
+    jwtPayload,
+    jwtRefreshSecret,
+    jwtRefreshExpiresIn as SignOptions,
+  );
+
+  return { accessToken, refreshToken, user };
+};
+
+const login = async (payload: IUserLoginPayload) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { email: payload.email },
+  });
+
+  const isPasswordValid = await bcrypt.compare(payload.password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid password");
+  }
+
+  const jwtPayload = {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+  };
+  const accessToken = jwtUtils.createToken(
+    jwtPayload,
+    jwtAccessSecret,
+    jwtAccessExpiresIn as SignOptions,
+  );
+
+  const refreshToken = jwtUtils.createToken(
+    jwtPayload,
+    jwtRefreshSecret,
+    jwtRefreshExpiresIn as SignOptions,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+const refreshToken = async (refreshToken: string) => {
+  try {
+    const decoded = jwtUtils.verifyToken(refreshToken, jwtRefreshSecret);
+    const { id, email } = decoded.data as JwtPayload;
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id, email },
+    });
+
+    const jwtPayload = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
+
+    const newAccessToken = jwtUtils.createToken(
+      jwtPayload,
+      jwtAccessSecret,
+      jwtAccessExpiresIn as SignOptions,
+    );
+
+    return { accessToken: newAccessToken };
+  } catch (error) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Invalid or expired refresh token",
+    );
+  }
+};
+
+export const AuthService = {
+  register,
+  login,
+  refreshToken,
+};
