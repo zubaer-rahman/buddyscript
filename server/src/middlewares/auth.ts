@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import AppError from "../utils/AppError";
-import catchAsync from "../utils/catchAsync";
+import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
 import httpStatus from "http-status";
-import config from "../config";
+import config from "../config/index.js";
 
 declare global {
   namespace Express {

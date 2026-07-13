@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { PostController } from "./post.controller";
-import { uploadImage } from "../../utils/uploadImage";
-import { auth } from "../../middlewares/auth";
-import validateRequest from "../../middlewares/validateRequest";
-import { PostValidation } from "./post.validation";
+import { PostController } from "./post.controller.js";
+import { uploadImage } from "../../utils/uploadImage.js";
+import { auth } from "../../middlewares/auth.js";
+import validateRequest from "../../middlewares/validateRequest.js";
+import { PostValidation } from "./post.validation.js";
 
 const router = Router();
 

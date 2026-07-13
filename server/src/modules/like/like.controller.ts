@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import catchAsync from "../../utils/catchAsync";
-import sendResponse from "../../utils/sendResponse";
-import { LikeService } from "./like.service";
+import catchAsync from "../../utils/catchAsync.js";
+import sendResponse from "../../utils/sendResponse.js";
+import { LikeService } from "./like.service.js";
 import httpStatus from "http-status";
 
 const toggleLike = catchAsync(async (req: Request, res: Response) => {

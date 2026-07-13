@@ -1,6 +1,6 @@
-import prisma from "../../lib/prisma";
-import AppError from "../../utils/AppError";
-import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface";
+import prisma from "../../lib/prisma.js";
+import AppError from "../../utils/AppError.js";
+import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface.js";
 import httpStatus from "http-status";
 
 const createPost = async (authorId: string, payload: ICreatePostPayload) => {

@@ -1,7 +1,7 @@
-import prisma from "../../lib/prisma";
-import AppError from "../../utils/AppError";
+import prisma from "../../lib/prisma.js";
+import AppError from "../../utils/AppError.js";
 import httpStatus from "http-status";
-import IToggleLikePayload from "./like.interface";
+import IToggleLikePayload from "./like.interface.js";
 
 const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
   const { entityType, entityId: id } = payload;
