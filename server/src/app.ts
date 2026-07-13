@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import config from "./config/index.js";
 import router from "./routes/index.js";
 import globalErrorHandler from "./middlewares/globalErrorHandler.js";
+import notFound from "./middlewares/notFound.js";
 
 const app: Application = express();
 
@@ -27,7 +28,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("BuddyScript API is running.");
 });
 
-app.use('/api/v1', router);
+app.use("/api/v1", router);
 app.use(globalErrorHandler);
+app.use(notFound);
 
 export default app;

@@ -13,4 +13,10 @@ export default {
   jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
   jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
+  cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
+  cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloudinary_folder: process.env.CLOUDINARY_FOLDER,
+  multer_allowed_formats: process.env.MULTER_ALLOWED_FORMATS,
+  multer_max_file_size_mb: process.env.MULTER_MAX_FILE_SIZE_MB,
 };

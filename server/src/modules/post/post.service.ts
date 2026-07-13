@@ -1,0 +1,126 @@
+import prisma from "../../lib/prisma";
+import AppError from "../../utils/AppError";
+import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface";
+import httpStatus from "http-status";
+
+const createPost = async (authorId: string, payload: ICreatePostPayload) => {
+  const post = await prisma.post.create({
+    data: {
+      ...payload,
+      authorId,
+    },
+    include: {
+      author: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
+    },
+  });
+  return post;
+};
+
+const getFeed = async (authorId: string) => {
+  const posts = await prisma.post.findMany({
+    where: {
+      OR: [{ isPrivate: false }, { authorId }],
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      author: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
+      likes: {
+        include: {
+          user: {
+            select: { id: true, firstName: true, lastName: true },
+          },
+        },
+      },
+      comments: {
+        include: {
+          author: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
+          likes: {
+            include: {
+              user: {
+                select: { id: true, firstName: true, lastName: true },
+              },
+            },
+          },
+          replies: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                },
+              },
+              likes: {
+                include: {
+                  user: {
+                    select: { id: true, firstName: true, lastName: true },
+                  },
+                },
+              },
+            },
+            orderBy: { createdAt: "asc" },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+
+  return posts;
+};
+
+const updatePost = async (
+  id: string,
+  authorId: string,
+  payload: IUpdatePostPayload,
+) => {
+  const post = await prisma.post.findUnique({ where: { id } });
+  if (!post) throw new AppError(httpStatus.NOT_FOUND, "Post not found");
+  if (post.authorId !== authorId)
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You can only edit your own posts",
+    );
+
+  const updated = await prisma.post.update({
+    where: { id },
+    data: {
+      ...payload,
+    },
+    include: {
+      author: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
+    },
+  });
+
+  return updated;
+};
+
+const deletePost = async (id: string, authorId: string) => {
+  const post = await prisma.post.findUnique({ where: { id } });
+  if (!post) throw new AppError(httpStatus.NOT_FOUND, "Post not found");
+  if (post.authorId !== authorId)
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You can only delete your own posts",
+    );
+
+  await prisma.post.delete({ where: { id } });
+
+  return { message: "Post deleted successfully" };
+};
+
+export const PostService = {
+  createPost,
+  getFeed,
+  updatePost,
+  deletePost,
+};

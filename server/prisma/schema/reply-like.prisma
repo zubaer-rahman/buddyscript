@@ -1,7 +1,7 @@
 model ReplyLike {
-    id        Int      @id @default(autoincrement())
-    replyId   Int
-    userId    Int
+    id        String   @id @default(uuid())
+    replyId   String
+    userId    String
     createdAt DateTime @default(now())
 
     reply Reply @relation(fields: [replyId], references: [id], onDelete: Cascade)
