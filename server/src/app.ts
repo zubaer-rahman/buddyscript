@@ -7,9 +7,9 @@ import express, {
 } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import config from "./config";
-import router from "./routes";
-import globalErrorHandler from "./middlewares/globalErrorHandler";
+import config from "./config/index.js";
+import router from "./routes/index.js";
+import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 
 const app: Application = express();
 

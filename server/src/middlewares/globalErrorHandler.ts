@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 import httpStatus from "http-status";
-import config from "../config";
+import config from "../config/index.js";
 
 const handleCastError = (err: any) => {
   return new AppError(httpStatus.BAD_REQUEST, `Invalid ${err.path}: ${err.value}`);

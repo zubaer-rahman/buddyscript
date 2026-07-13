@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload, type SignOptions } from "jsonwebtoken";
-import prisma from "../../lib/prisma";
-import AppError from "../../utils/AppError";
-import config from "../../config";
+import prisma from "../../lib/prisma.js";
+import AppError from "../../utils/AppError.js";
+import config from "../../config/index.js";
 import httpStatus from "http-status";
-import { IUserLoginPayload, IUserRegisterPayload } from "./auth.interface";
-import { jwtUtils } from "../../utils/jwt";
+import { IUserLoginPayload, IUserRegisterPayload } from "./auth.interface.js";
+import { jwtUtils } from "../../utils/jwt.js";
 
 const jwtAccessSecret = config.jwt_access_secret as string;
 const jwtRefreshSecret = config.jwt_refresh_secret as string;
