@@ -1,4 +1,4 @@
-import prisma from "../../lib/prisma";
+import prisma from "../../lib/prisma.js";
 import ICreateCommentPayload from "./comment.interface.js";
 
 const createComment = async (
