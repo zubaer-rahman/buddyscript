@@ -5,7 +5,7 @@ import { CommentService } from "./comment.service.js";
 import httpStatus from "http-status";
 
 const createComment = catchAsync(async (req: Request, res: Response) => {
-  const authorId = req.user?.id as string;
+  const authorId = req.user.id;
   const imageUrl = (req as any).file?.path;
 
   const comment = await CommentService.createComment(authorId, {

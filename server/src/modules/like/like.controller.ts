@@ -5,8 +5,7 @@ import { LikeService } from "./like.service.js";
 import httpStatus from "http-status";
 
 const toggleLike = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id as string;
-
+  const userId = req.user.id;
   const result = await LikeService.toggleLike(userId, req.body);
 
   sendResponse(res, {

@@ -5,7 +5,7 @@ import { PostService } from "./post.service.js";
 import httpStatus from "http-status";
 
 const createPost = catchAsync(async (req: Request, res: Response) => {
-  const authorId = req.user?.id as string;
+  const authorId = req.user.id;
   const imageUrl = req.file?.path || (req.file as any)?.url;
 
   const post = await PostService.createPost(authorId, {
@@ -22,7 +22,7 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getFeed = catchAsync(async (req: Request, res: Response) => {
-  const currentUserId = req.user?.id as string;
+  const currentUserId = req.user.id;
   const posts = await PostService.getFeed(currentUserId);
 
   sendResponse(res, {
@@ -35,7 +35,7 @@ const getFeed = catchAsync(async (req: Request, res: Response) => {
 
 const updatePost = catchAsync(async (req: Request, res: Response) => {
   const postId = req.params.id as string;
-  const authorId = req.user?.id as string;
+  const authorId = req.user.id;
   const imageUrl = req.file?.path || (req.file as any)?.url;
 
   const updated = await PostService.updatePost(postId, authorId, {
@@ -53,7 +53,7 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
 
 const deletePost = catchAsync(async (req: Request, res: Response) => {
   const postId = req.params.id as string;
-  const authorId = req.user?.id as string;
+  const authorId = req.user.id;
 
   await PostService.deletePost(postId, authorId);
 

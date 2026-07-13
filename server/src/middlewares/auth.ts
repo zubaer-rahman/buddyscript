@@ -5,18 +5,6 @@ import catchAsync from "../utils/catchAsync.js";
 import httpStatus from "http-status";
 import config from "../config/index.js";
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-      };
-    }
-  }
-}
 export const auth = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.accessToken

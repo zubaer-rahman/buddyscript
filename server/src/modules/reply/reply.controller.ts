@@ -5,7 +5,7 @@ import { ReplyService } from "./reply.service.js";
 import httpStatus from "http-status";
 
 const createReply = catchAsync(async (req: Request, res: Response) => {
-  const authorId = (req as any).user.id;
+  const authorId = req.user.id;
 
   const reply = await ReplyService.createReply(authorId, req.body);
 
