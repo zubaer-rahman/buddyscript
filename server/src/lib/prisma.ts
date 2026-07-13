@@ -5,7 +5,10 @@ import { PrismaClient } from "../../generated/prisma/client.js";
 
 const connectionString = config.database_url;
 
-const pool = new pg.Pool({ connectionString });
+const pool = new pg.Pool({ 
+  connectionString,
+  ssl: config.node_env === 'production' ? { rejectUnauthorized: false } : undefined
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

@@ -33,7 +33,10 @@ const handlePrismaError = (err: any) => {
     case "P2014":
       return new AppError(httpStatus.BAD_REQUEST, "Invalid ID format.");
     default:
-      return new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Database error occurred.");
+      return new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        `Database error occurred. Code: ${err.code}`,
+      );
   }
 };
 
