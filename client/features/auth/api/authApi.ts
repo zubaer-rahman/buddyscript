@@ -1,35 +1,23 @@
 import api from "../../../lib/axios";
-import type { User } from "../../../store/auth/types";
+import { LoginPayload, RegisterPayload, AuthResponse } from "../types";
 
-interface RegisterPayload {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
-type LoginPayload = Pick<RegisterPayload, "email" | "password">;
-
-interface LoginOrRegisterResponse {
-  success: boolean;
-  message: string;
-  data: {
-    accessToken: string;
-    user: User;
-  };
-}
-
-export async function loginRequest(payload: LoginPayload): Promise<User> {
-  const response = await api.post<LoginOrRegisterResponse>(
+export async function login(payload: LoginPayload): Promise<AuthResponse> {
+  const response = await api.post<{ success: boolean; data: AuthResponse }>(
     "/auth/login",
     payload,
   );
-  return response.data.data.user;
+  return response.data.data;
 }
 
-export async function registerRequest(payload: RegisterPayload): Promise<User> {
-  const response = await api.post<LoginOrRegisterResponse>(
+export async function register(
+  payload: RegisterPayload,
+): Promise<AuthResponse> {
+  const response = await api.post<{ success: boolean; data: AuthResponse }>(
     "/auth/register",
     payload,
   );
-  return response.data.data.user;
+  return response.data.data;
+}
+export async function logout(): Promise<void> {
+  await api.post("/auth/logout");
 }

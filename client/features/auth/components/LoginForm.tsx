@@ -1,32 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import type { SyntheticEvent } from "react";
+import { SyntheticEvent, useState } from "react";
+import { useLogin } from "../hooks/useLogin";
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
-  loading: boolean;
-  error: string;
-}
-
-export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
+export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const loginMutation = useLogin();
+
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(email, password);
+    loginMutation.mutate({ email, password });
   };
 
   return (
     <>
-      {error && (
+      {loginMutation.isError && (
         <div
           className="alert alert-danger"
           role="alert"
           style={{ fontSize: "14px", padding: "10px" }}
         >
-          {error}
+          {loginMutation.error?.message}
         </div>
       )}
 
@@ -89,9 +85,9 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
               <button
                 type="submit"
                 className="_social_login_form_btn_link _btn1"
-                disabled={loading}
+                disabled={loginMutation.isPending}
               >
-                {loading ? "Logging in..." : "Login now"}
+                {loginMutation.isPending ? "Logging in..." : "Login now"}
               </button>
             </div>
           </div>

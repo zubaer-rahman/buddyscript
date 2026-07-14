@@ -1,14 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { LoginShapes } from "../../../features/auth/api/components/LoginShapes";
-import { useLogin } from "../../../features/auth/api/hooks/useLogin";
-import { SocialLoginButton } from "../../../features/auth/api/components/SocialLoginButton";
-import { LoginForm } from "../../../features/auth/api/components/LoginForm";
+import { LoginShapes } from "@features/auth/components/LoginShapes";
+import { SocialLoginButton } from "@features/auth/components/SocialLoginButton";
+import { LoginForm } from "@features/auth/components/LoginForm";
 
 export default function Login() {
-  const { submit, error, loading } = useLogin();
-
   return (
     <section className="_social_login_wrapper _layout_main_wrapper">
       <LoginShapes />
@@ -47,7 +44,7 @@ export default function Login() {
                   <span>Or</span>
                 </div>
 
-                <LoginForm onSubmit={submit} loading={loading} error={error} />
+                <LoginForm />
 
                 <div className="row">
                   <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">

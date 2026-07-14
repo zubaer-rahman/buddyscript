@@ -1,24 +1,34 @@
-"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { useAuthStore } from "../../../../store/auth/authStore";
-import { loginRequest } from "../authApi";
+ import { register } from "@features/auth/api/authApi";
 import { getErrorMessage } from "../utils/getErrorMessage";
 
-export function useLogin() {
+interface RegisterInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  repeatPassword: string;
+}
+
+export function useRegister() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const loginAction = useAuthStore((state) => state.login);
-
-  const submit = async (email: string, password: string) => {
+ 
+  const submit = async ({ repeatPassword, ...payload }: RegisterInput) => {
     setError("");
+
+    if (payload.password !== repeatPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const user = await loginRequest({ email, password });
-      loginAction(user);
-      toast.success("Welcome back! Logged in successfully.");
+      await register(payload);
+      toast.success("Account created! Welcome to Buddy.");
       router.push("/feed");
     } catch (err) {
       setError(getErrorMessage(err));

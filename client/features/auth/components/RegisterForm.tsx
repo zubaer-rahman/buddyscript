@@ -2,20 +2,10 @@
 
 import { useState } from "react";
 import type { SyntheticEvent } from "react";
+import { useRegister } from "../hooks/useRegister";
 
-interface RegisterFormProps {
-  onSubmit: (values: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    repeatPassword: string;
-  }) => void;
-  loading: boolean;
-  error: string;
-}
-
-export function RegisterForm({ onSubmit, loading, error }: RegisterFormProps) {
+export function RegisterForm() {
+  const { submit, error, loading } = useRegister();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +14,7 @@ export function RegisterForm({ onSubmit, loading, error }: RegisterFormProps) {
 
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit({ firstName, lastName, email, password, repeatPassword });
+    submit({ firstName, lastName, email, password, repeatPassword });
   };
 
   return (

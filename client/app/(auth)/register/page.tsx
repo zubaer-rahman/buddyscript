@@ -1,15 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRegister } from "../../../features/auth/api/hooks/useRegister";
-import { LoginShapes } from "../../../features/auth/api/components/LoginShapes";
-import { SocialLoginButton } from "../../../features/auth/api/components/SocialLoginButton";
-import { RegisterForm } from "../../../features/auth/api/components/RegisterForm";
- 
+import { LoginShapes } from "@features/auth/components/LoginShapes";
+import { SocialLoginButton } from "@features/auth/components/SocialLoginButton";
+import { RegisterForm } from "@features/auth/components/RegisterForm";
 
 export default function Register() {
-  const { submit, error, loading } = useRegister();
-
   return (
     <section className="_social_registration_wrapper _layout_main_wrapper">
       <LoginShapes />
@@ -29,23 +25,32 @@ export default function Register() {
             <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12">
               <div className="_social_registration_content">
                 <div className="_social_registration_right_logo _mar_b28">
-                  <img src="/assets/images/logo.svg" alt="Image" className="_right_logo" />
+                  <img
+                    src="/assets/images/logo.svg"
+                    alt="Image"
+                    className="_right_logo"
+                  />
                 </div>
-                <p className="_social_registration_content_para _mar_b8">Get Started Now</p>
-                <h4 className="_social_registration_content_title _titl4 _mar_b50">Registration</h4>
+                <p className="_social_registration_content_para _mar_b8">
+                  Get Started Now
+                </p>
+                <h4 className="_social_registration_content_title _titl4 _mar_b50">
+                  Registration
+                </h4>
 
                 <SocialLoginButton provider="google" />
                 <div className="_social_registration_content_bottom_txt _mar_b40">
                   <span>Or</span>
                 </div>
 
-                <RegisterForm onSubmit={submit} loading={loading} error={error} />
+                <RegisterForm />
 
                 <div className="row">
                   <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                     <div className="_social_registration_bottom_txt">
                       <p className="_social_registration_bottom_txt_para">
-                        Already have an account? <Link href="/login">Login</Link>
+                        Already have an account?{" "}
+                        <Link href="/login">Login</Link>
                       </p>
                     </div>
                   </div>
