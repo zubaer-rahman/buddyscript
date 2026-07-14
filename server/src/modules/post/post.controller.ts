@@ -22,8 +22,13 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getFeed = catchAsync(async (req: Request, res: Response) => {
+  const { cursor, limit } = req.query;
   const currentUserId = req.user.id;
-  const posts = await PostService.getFeed(currentUserId);
+  const posts = await PostService.getFeed(
+    currentUserId,
+    cursor as string,
+    Number(limit) || 10,
+  );
 
   sendResponse(res, {
     success: true,

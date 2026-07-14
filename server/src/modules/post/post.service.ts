@@ -18,12 +18,15 @@ const createPost = async (authorId: string, payload: ICreatePostPayload) => {
   return post;
 };
 
-const getFeed = async (authorId: string) => {
+const getFeed = async (authorId: string, cursor?: string, limit = 10) => {
   const posts = await prisma.post.findMany({
+    take: limit + 1,
+    cursor: cursor ? { id: cursor } : undefined,
+    skip: cursor ? 1 : 0,
+    orderBy: { createdAt: "desc" },
     where: {
       OR: [{ isPrivate: false }, { authorId }],
     },
-    orderBy: { createdAt: "desc" },
     include: {
       author: {
         select: { id: true, firstName: true, lastName: true, avatar: true },

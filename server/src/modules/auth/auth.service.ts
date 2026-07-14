@@ -66,13 +66,11 @@ const register = async (payload: IUserRegisterPayload) => {
 };
 
 const login = async (payload: IUserLoginPayload) => {
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: { email: payload.email },
   });
-
-  const isPasswordValid = await bcrypt.compare(payload.password, user.password);
-  if (!isPasswordValid) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid password");
+  if (!user || !(await bcrypt.compare(payload.password, user.password))) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
   }
 
   const jwtPayload = {
@@ -105,6 +103,12 @@ const login = async (payload: IUserLoginPayload) => {
 const refreshToken = async (refreshToken: string) => {
   try {
     const decoded = jwtUtils.verifyToken(refreshToken, jwtRefreshSecret);
+    if (!decoded.success || !decoded.data) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Invalid or expired refresh token",
+      );
+    }
     const { id, email } = decoded.data as JwtPayload;
     const user = await prisma.user.findUniqueOrThrow({
       where: { id, email },

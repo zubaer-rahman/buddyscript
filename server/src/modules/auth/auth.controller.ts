@@ -14,14 +14,14 @@ const register = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: config.node_env === "production",
-    sameSite: "strict",
+    sameSite: config.node_env === "production" ? "none" : "strict",
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: config.node_env === "production",
-    sameSite: "strict",
+    sameSite: config.node_env === "production" ? "none" : "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -39,14 +39,14 @@ const login = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: config.node_env === "production",
-    sameSite: "strict",
+    sameSite: config.node_env === "production" ? "none" : "strict",
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: config.node_env === "production",
-    sameSite: "strict",
+    sameSite: config.node_env === "production" ? "none" : "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -70,7 +70,7 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: config.node_env === "production",
-    sameSite: "strict",
+    sameSite: config.node_env === "production" ? "none" : "strict",
     maxAge: 15 * 60 * 1000,
   });
 
