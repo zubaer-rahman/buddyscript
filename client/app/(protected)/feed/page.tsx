@@ -11,6 +11,8 @@ import StoryCards from "@components/StoryCards";
 import MobileStoryCards from "@components/MobileStoryCards";
 import { useAuthStore } from "@store/auth/authStore";
 import CreatePostBox from "@features/feed/components/CreatePostBox";
+import { usePosts } from "@features/feed/hooks/usePosts";
+import { PostList } from "@features/feed/components/PostList";
 
 export default function FeedPage() {
   return <FeedPageContent />;
@@ -19,6 +21,8 @@ export default function FeedPage() {
 function FeedPageContent() {
   const { darkMode } = useDarkMode();
   const { user } = useAuthStore();
+  const { posts, loading, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    usePosts();
   return (
     <div
       className={
@@ -42,6 +46,14 @@ function FeedPageContent() {
                     <StoryCards />
                     <MobileStoryCards />
                     {user && <CreatePostBox />}
+                    <PostList
+                      posts={posts}
+                      loading={loading}
+                      hasNextPage={hasNextPage}
+                      isFetchingNextPage={isFetchingNextPage}
+                      fetchNextPage={fetchNextPage}
+                      currentUser={user}
+                    />
                   </div>
                 </div>
               </div>
