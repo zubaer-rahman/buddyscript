@@ -1,10 +1,10 @@
 "use client";
 
 import { Toaster } from "react-hot-toast";
-import { DarkModeProvider } from "@/context/dark-mode-context";
+import { DarkModeProvider } from "../../contexts/dark-mode-context";
 import { useEffect } from "react";
-import { authStorage } from "../../../store/auth/storage";
-import { useAuthStore } from "../../../store/auth/authStore";
+import { authStorage } from "../../store/auth/storage";
+import { useAuthStore } from "../../store/auth/authStore";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -12,7 +12,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     if (user) {
       useAuthStore.setState({ user, isAuthenticated: true });
     }
-    useAuthStore.getState().setHasHydrated(true);
+    useAuthStore.setState({ hasHydrated: true });
   }, []);
   return (
     <DarkModeProvider>

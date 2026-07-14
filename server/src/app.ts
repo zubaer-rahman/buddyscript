@@ -7,30 +7,17 @@ import express, {
 } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import helmet from "helmet";
 import compression from "compression";
 import config from "./config/index.js";
 import router from "./routes/index.js";
 import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 import notFound from "./middlewares/notFound.js";
 import { authLimiter, globalLimiter } from "./middlewares/rateLimiters.js";
+import { helmetConfig } from "./config/helmet.js";
 
 const app: Application = express();
 
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "https://res.cloudinary.com", "https://ui-avatars.com", "data:"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        connectSrc: ["'self'"],
-      },
-    },
-  }),
-);
+app.use(helmetConfig);
 
 app.use(
   cors({

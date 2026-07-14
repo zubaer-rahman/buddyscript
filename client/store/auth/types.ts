@@ -2,7 +2,6 @@ export interface User {
   id: number;
   firstName: string;
   lastName: string;
-  email: string;
   avatar?: string | null;
 }
 
@@ -11,7 +10,6 @@ export interface AuthState {
   isAuthenticated: boolean;
   login: (user: User) => void;
   logout: () => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
   hasHydrated: boolean;
-  setHasHydrated: (value: boolean) => void;
-
 }

@@ -9,12 +9,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: !!initialUser,
   hasHydrated: false,
   login: (user) => {
-    authStorage.save(user);
-    set({ user, isAuthenticated: true });
+    const storable = authStorage.toStorable(user);
+    localStorage.setItem("auth-user", JSON.stringify(storable));
+    set({ user: storable, isAuthenticated: true });
   },
   logout: () => {
     authStorage.clear();
     set({ user: null, isAuthenticated: false });
   },
-  setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
+  setHasHydrated: (hasHydrated: boolean) => {
+    set({ hasHydrated });
+  },
 }));

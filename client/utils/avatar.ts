@@ -4,7 +4,7 @@ export const getUserAvatar = (
     | null
     | undefined,
 ): string => {
-  if (!user) return "/images/txt_img.png";
+  if (!user) return "/assets/images/txt_img.png";
   if (user.avatar) return user.avatar;
 
   const name = encodeURIComponent(
