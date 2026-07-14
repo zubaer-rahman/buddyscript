@@ -16,7 +16,7 @@ const register = async (payload: IUserRegisterPayload) => {
   const { email, password, firstName, lastName } = payload;
 
   const existingUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: email.toLowerCase() },
   });
   if (existingUser) {
     throw new AppError(
@@ -34,7 +34,7 @@ const register = async (payload: IUserRegisterPayload) => {
     data: {
       firstName,
       lastName,
-      email,
+      email: email.toLowerCase(),
       password: hashedPassword,
     },
   });
@@ -46,9 +46,7 @@ const register = async (payload: IUserRegisterPayload) => {
   });
   const jwtPayload = {
     id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
+    tokenVersion: user.tokenVersion,
   };
   const accessToken = jwtUtils.createToken(
     jwtPayload,
@@ -67,7 +65,7 @@ const register = async (payload: IUserRegisterPayload) => {
 
 const login = async (payload: IUserLoginPayload) => {
   const user = await prisma.user.findUnique({
-    where: { email: payload.email },
+    where: { email: payload.email.toLowerCase() },
   });
   if (!user || !(await bcrypt.compare(payload.password, user.password))) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
@@ -75,9 +73,7 @@ const login = async (payload: IUserLoginPayload) => {
 
   const jwtPayload = {
     id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
+    tokenVersion: user.tokenVersion,
   };
   const accessToken = jwtUtils.createToken(
     jwtPayload,
@@ -109,16 +105,27 @@ const refreshToken = async (refreshToken: string) => {
         "Invalid or expired refresh token",
       );
     }
-    const { id, email } = decoded.data as JwtPayload;
+    const { id } = decoded.data as JwtPayload;
     const user = await prisma.user.findUniqueOrThrow({
-      where: { id, email },
+      where: { id },
+    });
+
+    if (user.tokenVersion !== (decoded.data as any).tokenVersion) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Session revoked. Please log in again.",
+      );
+    }
+
+    const newTokenVersion = user.tokenVersion + 1;
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { tokenVersion: newTokenVersion },
     });
 
     const jwtPayload = {
       id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
+      tokenVersion: newTokenVersion,
     };
 
     const newAccessToken = jwtUtils.createToken(
@@ -127,7 +134,13 @@ const refreshToken = async (refreshToken: string) => {
       jwtAccessExpiresIn as SignOptions,
     );
 
-    return { accessToken: newAccessToken };
+    const newRefreshToken = jwtUtils.createToken(
+      jwtPayload,
+      jwtRefreshSecret,
+      jwtRefreshExpiresIn as SignOptions,
+    );
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   } catch (error) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
@@ -136,8 +149,16 @@ const refreshToken = async (refreshToken: string) => {
   }
 };
 
+const logout = async (userId: string) => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { tokenVersion: { increment: 1 } },
+  });
+};
+
 export const AuthService = {
   register,
   login,
   refreshToken,
+  logout,
 };

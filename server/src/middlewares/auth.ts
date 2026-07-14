@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import prisma from "../lib/prisma.js";
 import AppError from "../utils/AppError.js";
 import catchAsync from "../utils/catchAsync.js";
 import httpStatus from "http-status";
@@ -23,10 +24,20 @@ export const auth = catchAsync(
     try {
       const decoded = jwt.verify(token, config.jwt_access_secret as string) as {
         id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
+        tokenVersion?: number;
       };
+
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.id },
+        select: { id: true, tokenVersion: true },
+      });
+
+      if (!user || user.tokenVersion !== (decoded.tokenVersion ?? 0)) {
+        throw new AppError(
+          httpStatus.UNAUTHORIZED,
+          "Session revoked. Please log in again.",
+        );
+      }
 
       req.user = decoded;
 

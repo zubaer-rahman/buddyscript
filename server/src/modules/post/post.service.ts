@@ -56,6 +56,31 @@ const getFeed = async (authorId: string, cursor?: string, limit = 10) => {
         where: { userId: authorId },
         select: { userId: true },
       },
+
+      comments: {
+        take: 3,
+        orderBy: { createdAt: "asc" },
+        include: {
+          author: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
+          likes: {
+            where: { userId: authorId },
+            select: { userId: true },
+          },
+          replies: {
+            include: {
+              author: {
+                select: { id: true, firstName: true, lastName: true, avatar: true },
+              },
+              likes: {
+                where: { userId: authorId },
+                select: { userId: true },
+              },
+            },
+          },
+        },
+      },
     },
   });
 

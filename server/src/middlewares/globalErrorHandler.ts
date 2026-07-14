@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import AppError from "../utils/AppError.js";
 import httpStatus from "http-status";
-import config from "../config/index.js";
 
 const handleCastError = (err: any) => {
   return new AppError(httpStatus.BAD_REQUEST, `Invalid ${err.path}: ${err.value}`);
@@ -35,7 +34,7 @@ const handlePrismaError = (err: any) => {
     default:
       return new AppError(
         httpStatus.INTERNAL_SERVER_ERROR,
-        `Database error occurred. Code: ${err.code}`,
+        "A database error occurred. Please try again.",
       );
   }
 };
@@ -74,10 +73,7 @@ const globalErrorHandler = (
     success: false,
     message,
     ...(error.errors && { errors: error.errors }),
-    errorSources:
-      config.node_env === "development"
-        ? [{ message: err.stack }]
-        : undefined,
+    errorSources: undefined,
   });
 };
 
