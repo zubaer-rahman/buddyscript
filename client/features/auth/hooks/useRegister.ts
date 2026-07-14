@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
- import { register } from "@features/auth/api/authApi";
+import { register } from "@features/auth/api/authApi";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { useAuthStore } from "@store/auth/authStore";
 
 interface RegisterInput {
   firstName: string;
@@ -16,7 +17,8 @@ export function useRegister() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
- 
+  const storeLogin = useAuthStore((s) => s.login);
+
   const submit = async ({ repeatPassword, ...payload }: RegisterInput) => {
     setError("");
 
@@ -27,7 +29,8 @@ export function useRegister() {
 
     setLoading(true);
     try {
-      await register(payload);
+      const data = await register(payload);
+      storeLogin(data.user);
       toast.success("Account created! Welcome to Buddy.");
       router.push("/feed");
     } catch (err) {

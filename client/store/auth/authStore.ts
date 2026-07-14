@@ -3,30 +3,30 @@ import type { AuthState } from "./types";
 import { AUTH_KEY, authStorage } from "./storage";
 import { persist } from "zustand/middleware";
 
-const initialUser = authStorage.load();
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      user: initialUser,
-      isAuthenticated: !!initialUser,
+      user: null,
+      isAuthenticated: false,
       login: (user) => {
         const storable = authStorage.toStorable(user);
-        // localStorage.setItem("auth-user", JSON.stringify(storable));
         set({ user: storable, isAuthenticated: true });
       },
       logout: () => {
-        authStorage.clear();
         set({ user: null, isAuthenticated: false });
       },
       hasHydrated: false,
-
       setHasHydrated: (state: boolean) => {
         set({ hasHydrated: state });
       },
     }),
     {
       name: AUTH_KEY,
+      version: 1,
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },

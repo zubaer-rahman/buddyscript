@@ -10,28 +10,15 @@ cloudinary.config({
   api_secret: config.cloudinary_api_secret,
 });
 
-const IMAGE_MAGIC_BYTES: [number, number[]][] = [
-  [0xff, [0xd8, 0xff]],          // JPEG
-  [0x89, [0x50, 0x4e, 0x47]],    // PNG
-  [0x47, [0x49, 0x46, 0x38]],    // GIF87a / GIF89a
-  [0x52, [0x49, 0x46, 0x46]],    // WebP (RIFF....WEBP)
-];
-
-function isValidImage(buffer: Buffer): boolean {
-  if (buffer.length < 12) return false;
-  for (const [offset, magic] of IMAGE_MAGIC_BYTES) {
-    if (magic.every((byte, i) => buffer[offset + i] === byte)) return true;
-  }
-  return false;
-}
-
 const storage = multer.memoryStorage();
 
 export const uploadImage = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new AppError(httpStatus.BAD_REQUEST, 'Only image files allowed') as any);
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(
+        new AppError(httpStatus.BAD_REQUEST, "Only image files allowed") as any,
+      );
     }
     cb(null, true);
   },
@@ -40,11 +27,9 @@ export const uploadImage = multer({
   },
 });
 
-export async function uploadToCloudinary(file: Express.Multer.File): Promise<string> {
-  if (!isValidImage(file.buffer)) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid image file");
-  }
-
+export async function uploadToCloudinary(
+  file: Express.Multer.File,
+): Promise<string> {
   const allowedFormats = (
     config.multer_allowed_formats || "jpg,jpeg,png,gif,webp"
   ).split(",");
@@ -58,7 +43,9 @@ export async function uploadToCloudinary(file: Express.Multer.File): Promise<str
       },
       (error, result) => {
         if (error || !result) {
-          reject(new AppError(httpStatus.BAD_REQUEST, "Failed to upload image"));
+          reject(
+            new AppError(httpStatus.BAD_REQUEST, "Failed to upload image"),
+          );
         } else {
           resolve(result.secure_url);
         }
