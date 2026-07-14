@@ -2,9 +2,11 @@ import type { AxiosError } from "axios";
 
 export function getFriendlyMessage(error: AxiosError): string {
   const status = error.response?.status;
-  const data = error.response?.data as { message?: string; errors?: { message: string }[] } | undefined;
+  const data = error.response?.data as
+    | { message?: string; errors?: { message: string }[] }
+    | undefined;
   const rawMessage = data?.message ?? "";
-  
+
   let validationMessage = "";
   if (data?.errors && data.errors.length > 0) {
     validationMessage = data.errors[0].message;
@@ -16,7 +18,11 @@ export function getFriendlyMessage(error: AxiosError): string {
 
   switch (status) {
     case 400:
-      return validationMessage || rawMessage || "The request was invalid. Please check your input and try again.";
+      return (
+        validationMessage ||
+        rawMessage ||
+        "The request was invalid. Please check your input and try again."
+      );
     case 401:
       return rawMessage || "Your session has expired. Please log in again.";
     case 403:

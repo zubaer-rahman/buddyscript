@@ -7,15 +7,18 @@ import { useDarkMode } from "@contexts/dark-mode-context";
 import MobileBottomNav from "@components/MobileBottomNav";
 import LeftSidebar from "@components/LeftSidebar/LeftSidebar";
 import RightSidebar from "@components/RightSidebar/RightSidebar";
-import { useContext } from "react";
+import StoryCards from "@components/StoryCards";
+import MobileStoryCards from "@components/MobileStoryCards";
+import { useAuthStore } from "@store/auth/authStore";
+import CreatePostBox from "@features/feed/components/CreatePostBox";
 
 export default function FeedPage() {
   return <FeedPageContent />;
 }
 
 function FeedPageContent() {
-  const { darkMode, toggleDarkMode } = useDarkMode();
-
+  const { darkMode } = useDarkMode();
+  const { user } = useAuthStore();
   return (
     <div
       className={
@@ -35,7 +38,11 @@ function FeedPageContent() {
               </div>
               <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                 <div className="_layout_middle_wrap">
-                  <div className="_layout_middle_inner"></div>
+                  <div className="_layout_middle_inner">
+                    <StoryCards />
+                    <MobileStoryCards />
+                    {user && <CreatePostBox />}
+                  </div>
                 </div>
               </div>
               <div className="col-xl-3 col-lg-3 col-md-12 col-sm-12">

@@ -1,11 +1,11 @@
 import type { User } from "./types";
 
-const AUTH_KEY = "auth-user";
+export const AUTH_KEY = "auth-user";
 
 export const authStorage = {
   load(): User | null {
     try {
-      const raw = localStorage.getItem("auth-user");
+      const raw = localStorage.getItem(AUTH_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
