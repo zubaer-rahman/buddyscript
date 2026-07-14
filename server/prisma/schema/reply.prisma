@@ -4,6 +4,7 @@ model Reply {
     imageUrl  String?
     commentId String
     authorId  String
+    likeCount Int      @default(0)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -11,6 +12,7 @@ model Reply {
     author  User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
     likes   ReplyLike[]
 
-    @@index([commentId])
+    @@index([commentId, createdAt(sort: Asc)])
+    @@index([authorId, createdAt(sort: Desc)])
     @@map("replies")
 }

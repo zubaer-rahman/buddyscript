@@ -5,62 +5,89 @@ import IToggleLikePayload from "./like.interface.js";
 
 const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
   const { entityType, entityId: id } = payload;
-  let existing;
 
   switch (entityType) {
     case "post": {
-      const post = await prisma.post.findUnique({ where: { id } });
-      if (!post) throw new AppError(httpStatus.NOT_FOUND, "Post not found");
-
-      existing = await prisma.like.findUnique({
+      const existing = await prisma.like.findUnique({
         where: { postId_userId: { postId: id, userId } },
       });
 
       if (existing) {
-        await prisma.like.delete({ where: { id: existing.id } });
+        await prisma.$transaction([
+          prisma.like.delete({
+            where: { postId_userId: { postId: id, userId } },
+          }),
+          prisma.post.update({
+            where: { id },
+            data: { likeCount: { decrement: 1 } },
+          }),
+        ]);
         return { liked: false, message: "Post unliked" };
       }
 
-      await prisma.like.create({ data: { postId: id, userId } });
+      await prisma.$transaction([
+        prisma.like.create({ data: { postId: id, userId } }),
+        prisma.post.update({
+          where: { id },
+          data: { likeCount: { increment: 1 } },
+        }),
+      ]);
       return { liked: true, message: "Post liked" };
     }
 
     case "comment": {
-      const comment = await prisma.comment.findUnique({
-        where: { id },
-      });
-      if (!comment)
-        throw new AppError(httpStatus.NOT_FOUND, "Comment not found");
-
-      existing = await prisma.commentLike.findUnique({
+      const existing = await prisma.commentLike.findUnique({
         where: { commentId_userId: { commentId: id, userId } },
       });
 
       if (existing) {
-        await prisma.commentLike.delete({ where: { id: existing.id } });
+        await prisma.$transaction([
+          prisma.commentLike.delete({
+            where: { commentId_userId: { commentId: id, userId } },
+          }),
+          prisma.comment.update({
+            where: { id },
+            data: { likeCount: { decrement: 1 } },
+          }),
+        ]);
         return { liked: false, message: "Comment unliked" };
       }
 
-      await prisma.commentLike.create({
-        data: { commentId: id, userId },
-      });
+      await prisma.$transaction([
+        prisma.commentLike.create({ data: { commentId: id, userId } }),
+        prisma.comment.update({
+          where: { id },
+          data: { likeCount: { increment: 1 } },
+        }),
+      ]);
       return { liked: true, message: "Comment liked" };
     }
 
     case "reply": {
-      const reply = await prisma.reply.findUnique({ where: { id } });
-      if (!reply) throw new AppError(httpStatus.NOT_FOUND, "Reply not found");
-
-      existing = await prisma.replyLike.findUnique({
+      const existing = await prisma.replyLike.findUnique({
         where: { replyId_userId: { replyId: id, userId } },
       });
 
       if (existing) {
-        await prisma.replyLike.delete({ where: { id: existing.id } });
+        await prisma.$transaction([
+          prisma.replyLike.delete({
+            where: { replyId_userId: { replyId: id, userId } },
+          }),
+          prisma.reply.update({
+            where: { id },
+            data: { likeCount: { decrement: 1 } },
+          }),
+        ]);
         return { liked: false, message: "Reply unliked" };
       }
 
-      await prisma.replyLike.create({ data: { replyId: id, userId } });
+      await prisma.$transaction([
+        prisma.replyLike.create({ data: { replyId: id, userId } }),
+        prisma.reply.update({
+          where: { id },
+          data: { likeCount: { increment: 1 } },
+        }),
+      ]);
       return { liked: true, message: "Reply liked" };
     }
 

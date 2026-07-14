@@ -21,7 +21,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: [config.app_url, "http://localhost:5000"],
+    origin: [config.app_url, "http://localhost:3000"],
     credentials: true,
   }),
 );
@@ -40,9 +40,9 @@ app.get("/", (req: Request, res: Response) => {
   res.send("BuddyScript API is running.");
 });
 
-app.use("/api/v1", router);
+app.use("/api", router);
 
 app.use(notFound);
- app.use(globalErrorHandler);
+app.use(globalErrorHandler);
 
 export default app;

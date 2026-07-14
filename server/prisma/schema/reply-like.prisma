@@ -1,5 +1,4 @@
 model ReplyLike {
-    id        String   @id @default(uuid())
     replyId   String
     userId    String
     createdAt DateTime @default(now())
@@ -7,6 +6,6 @@ model ReplyLike {
     reply Reply @relation(fields: [replyId], references: [id], onDelete: Cascade)
     user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([replyId, userId])
+    @@id([replyId, userId])
     @@map("reply_likes")
 }

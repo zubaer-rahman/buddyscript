@@ -24,7 +24,7 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
 const getFeed = catchAsync(async (req: Request, res: Response) => {
   const { cursor, limit } = req.query;
   const currentUserId = req.user.id;
-  const posts = await PostService.getFeed(
+  const result = await PostService.getFeed(
     currentUserId,
     cursor as string,
     Number(limit) || 10,
@@ -34,7 +34,7 @@ const getFeed = catchAsync(async (req: Request, res: Response) => {
     success: true,
     statusCode: httpStatus.OK,
     message: "Feed fetched successfully",
-    data: posts,
+    data: result,
   });
 });
 

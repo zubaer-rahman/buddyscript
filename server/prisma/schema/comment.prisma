@@ -4,6 +4,7 @@ model Comment {
     imageUrl  String?
     postId    String
     authorId  String
+    likeCount Int      @default(0)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -12,6 +13,7 @@ model Comment {
     replies Reply[]
     likes   CommentLike[]
 
-    @@index([postId])
+    @@index([postId, createdAt(sort: Asc)])
+    @@index([authorId, createdAt(sort: Desc)])
     @@map("comments")
 }

@@ -2,6 +2,12 @@ import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface.js";
 import httpStatus from "http-status";
+import {
+  feedKey,
+  getCache,
+  setCache,
+  invalidateUserFeed,
+} from "../../lib/redis.js";
 
 const createPost = async (authorId: string, payload: ICreatePostPayload) => {
   const post = await prisma.post.create({
@@ -15,10 +21,24 @@ const createPost = async (authorId: string, payload: ICreatePostPayload) => {
       },
     },
   });
+
+  await invalidateUserFeed(authorId);
+
   return post;
 };
 
 const getFeed = async (authorId: string, cursor?: string, limit = 10) => {
+  const key = feedKey(authorId, cursor ?? "", limit);
+
+  const cached = await getCache(key);
+  if (cached) {
+    return JSON.parse(cached) as {
+      posts: unknown[];
+      nextCursor: string | null;
+      hasNextPage: boolean;
+    };
+  }
+
   const posts = await prisma.post.findMany({
     take: limit + 1,
     cursor: cursor ? { id: cursor } : undefined,
@@ -31,52 +51,23 @@ const getFeed = async (authorId: string, cursor?: string, limit = 10) => {
       author: {
         select: { id: true, firstName: true, lastName: true, avatar: true },
       },
+
       likes: {
-        include: {
-          user: {
-            select: { id: true, firstName: true, lastName: true },
-          },
-        },
-      },
-      comments: {
-        include: {
-          author: {
-            select: { id: true, firstName: true, lastName: true, avatar: true },
-          },
-          likes: {
-            include: {
-              user: {
-                select: { id: true, firstName: true, lastName: true },
-              },
-            },
-          },
-          replies: {
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  avatar: true,
-                },
-              },
-              likes: {
-                include: {
-                  user: {
-                    select: { id: true, firstName: true, lastName: true },
-                  },
-                },
-              },
-            },
-            orderBy: { createdAt: "asc" },
-          },
-        },
-        orderBy: { createdAt: "asc" },
+        where: { userId: authorId },
+        select: { userId: true },
       },
     },
   });
 
-  return posts;
+  const hasNextPage = posts.length > limit;
+  const data = hasNextPage ? posts.slice(0, limit) : posts;
+  const nextCursor = hasNextPage ? data[data.length - 1]!.id : null;
+
+  const result = { posts: data, nextCursor, hasNextPage };
+
+  await setCache(key, JSON.stringify(result));
+
+  return result;
 };
 
 const updatePost = async (
@@ -104,6 +95,8 @@ const updatePost = async (
     },
   });
 
+  await invalidateUserFeed(authorId);
+
   return updated;
 };
 
@@ -117,6 +110,8 @@ const deletePost = async (id: string, authorId: string) => {
     );
 
   await prisma.post.delete({ where: { id } });
+
+  await invalidateUserFeed(authorId);
 
   return { message: "Post deleted successfully" };
 };

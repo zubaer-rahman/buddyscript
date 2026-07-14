@@ -6,7 +6,7 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 export default {
   node_env: process.env.NODE_ENV,
   port: Number(process.env.PORT) || 5000,
-  app_url: process.env.APP_URL || "http://localhost:5000",
+  app_url: process.env.APP_URL || "http://localhost:3000",
   database_url: process.env.DATABASE_URL,
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
   jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
@@ -19,4 +19,5 @@ export default {
   cloudinary_folder: process.env.CLOUDINARY_FOLDER,
   multer_allowed_formats: process.env.MULTER_ALLOWED_FORMATS,
   multer_max_file_size_mb: process.env.MULTER_MAX_FILE_SIZE_MB,
+  redis_url: process.env.REDIS_URL,
 };

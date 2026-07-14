@@ -1,5 +1,4 @@
 model CommentLike {
-    id        String   @id @default(uuid())
     commentId String
     userId    String
     createdAt DateTime @default(now())
@@ -7,6 +6,6 @@ model CommentLike {
     comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
     user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([commentId, userId])
+    @@id([commentId, userId])
     @@map("comment_likes")
 }
