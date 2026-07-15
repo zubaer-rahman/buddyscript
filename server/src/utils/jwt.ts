@@ -1,4 +1,9 @@
-import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
+
+export interface JwtPayload {
+  id: string;
+  tokenVersion?: number;
+}
 
 const createToken = (
   payload: JwtPayload,
@@ -12,7 +17,7 @@ const createToken = (
 
 const verifyToken = (token: string, secret: string) => {
   try {
-    const verifiedToken = jwt.verify(token, secret);
+    const verifiedToken = jwt.verify(token, secret) as JwtPayload;
     return {
       success: true,
       data: verifiedToken,
@@ -21,6 +26,7 @@ const verifyToken = (token: string, secret: string) => {
     console.log("Token verification failed:", error);
     return {
       success: false,
+      data: null,
       error: error.message || "Token verification failed",
     };
   }

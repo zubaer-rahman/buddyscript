@@ -2,6 +2,7 @@ import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import httpStatus from "http-status";
 import IToggleLikePayload from "./like.interface.js";
+import { invalidateAllFeeds } from "../../lib/redis.js";
 
 const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
   const { entityType, entityId: id } = payload;
@@ -22,6 +23,7 @@ const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
             data: { likeCount: { decrement: 1 } },
           }),
         ]);
+        await invalidateAllFeeds();
         return { liked: false, message: "Post unliked" };
       }
 
@@ -32,6 +34,7 @@ const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
           data: { likeCount: { increment: 1 } },
         }),
       ]);
+      await invalidateAllFeeds();
       return { liked: true, message: "Post liked" };
     }
 
@@ -50,6 +53,7 @@ const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
             data: { likeCount: { decrement: 1 } },
           }),
         ]);
+        await invalidateAllFeeds();
         return { liked: false, message: "Comment unliked" };
       }
 
@@ -60,6 +64,7 @@ const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
           data: { likeCount: { increment: 1 } },
         }),
       ]);
+      await invalidateAllFeeds();
       return { liked: true, message: "Comment liked" };
     }
 
@@ -78,6 +83,7 @@ const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
             data: { likeCount: { decrement: 1 } },
           }),
         ]);
+        await invalidateAllFeeds();
         return { liked: false, message: "Reply unliked" };
       }
 
@@ -88,6 +94,7 @@ const toggleLike = async (userId: string, payload: IToggleLikePayload) => {
           data: { likeCount: { increment: 1 } },
         }),
       ]);
+      await invalidateAllFeeds();
       return { liked: true, message: "Reply liked" };
     }
 

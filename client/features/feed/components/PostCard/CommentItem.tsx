@@ -27,9 +27,9 @@ export function CommentItem({
   const [replyText, setReplyText] = useState("");
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [liked, setLiked] = useState(
-    comment.likes?.some((l) => l.userId === currentUser.id) ?? false,
+    comment.likes?.some((l) => String(l.userId) === String(currentUser.id)) ?? false,
   );
-  const [likesCount, setLikesCount] = useState(comment.likes?.length ?? 0);
+  const [likesCount, setLikesCount] = useState(comment.likeCount ?? comment.likes?.length ?? 0);
   const likeMutation = useLikeMutation();
 
   const likers =

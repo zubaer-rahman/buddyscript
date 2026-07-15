@@ -5,6 +5,7 @@ import { AuthService } from "./auth.service.js";
 import AppError from "../../utils/AppError.js";
 import httpStatus from "http-status";
 import config from "../../config/index.js";
+import { jwtUtils } from "../../utils/jwt.js";
 
 const register = catchAsync(async (req: Request, res: Response) => {
   const { accessToken, refreshToken, user } = await AuthService.register(
@@ -65,7 +66,8 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(httpStatus.UNAUTHORIZED, "No refresh token provided");
   }
 
-  const { accessToken, refreshToken: newRefreshToken } = await AuthService.refreshToken(token);
+  const { accessToken, refreshToken: newRefreshToken } =
+    await AuthService.refreshToken(token);
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
@@ -90,8 +92,17 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
 });
 
 const logout = catchAsync(async (req: Request, res: Response) => {
-  if (req.user?.id) {
-    await AuthService.logout(req.user.id);
+  const token = req.cookies.accessToken;
+  if (token) {
+    const decoded = jwtUtils.verifyToken(
+      token,
+      config.jwt_access_secret as string,
+    );
+    if (decoded.success && decoded.data?.id) {
+      await AuthService.logout(decoded.data.id as string).catch(() => {
+        return;
+      });
+    }
   }
 
   res.clearCookie("accessToken");

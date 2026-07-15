@@ -52,9 +52,19 @@ const getFeed = async (authorId: string, cursor?: string, limit = 10) => {
         select: { id: true, firstName: true, lastName: true, avatar: true },
       },
 
-      likes: {
-        where: { userId: authorId },
-        select: { userId: true },
+       likes: {
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          userId: true,
+          user: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
+        },
+      },
+
+       _count: {
+        select: { likes: { where: { userId: authorId } } },
       },
 
       comments: {
@@ -85,7 +95,13 @@ const getFeed = async (authorId: string, cursor?: string, limit = 10) => {
   });
 
   const hasNextPage = posts.length > limit;
-  const data = hasNextPage ? posts.slice(0, limit) : posts;
+  const raw = hasNextPage ? posts.slice(0, limit) : posts;
+
+   const data = raw.map(({ _count, ...post }) => ({
+    ...post,
+    isLikedByMe: _count.likes > 0,
+  }));
+
   const nextCursor = hasNextPage ? data[data.length - 1]!.id : null;
 
   const result = { posts: data, nextCursor, hasNextPage };

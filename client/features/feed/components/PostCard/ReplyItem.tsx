@@ -19,9 +19,9 @@ interface ReplyItemProps {
 
 export function ReplyItem({ reply, currentUser }: ReplyItemProps) {
   const [liked, setLiked] = useState(
-    reply.likes?.some((l) => l.userId === currentUser.id) ?? false,
+    reply.likes?.some((l) => String(l.userId) === String(currentUser.id)) ?? false,
   );
-  const [likesCount, setLikesCount] = useState(reply.likes?.length ?? 0);
+  const [likesCount, setLikesCount] = useState(reply.likeCount ?? reply.likes?.length ?? 0);
   const likeMutation = useLikeMutation();
 
   const likers =
@@ -64,12 +64,7 @@ export function ReplyItem({ reply, currentUser }: ReplyItemProps) {
       <div className="_comment_area">
         <div
           className="_comment_details"
-          style={{
-            width: "100%",
-            maxWidth: "100%",
-            padding: "8px 12px",
-            marginBottom: 28,
-          }}
+          style={{ width: "100%", maxWidth: "100%" }}
         >
           <div className="_comment_details_top">
             <div className="_comment_name">
@@ -123,7 +118,7 @@ export function ReplyItem({ reply, currentUser }: ReplyItemProps) {
             </span>
           </div>
           <div className="_comment_reply">
-            <div className="_comment_reply_num" style={{ bottom: -24 }}>
+            <div className="_comment_reply_num">
               <ul className="_comment_reply_list">
                 <li>
                   <button

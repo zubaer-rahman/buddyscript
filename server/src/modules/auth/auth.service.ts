@@ -150,12 +150,15 @@ const refreshToken = async (refreshToken: string) => {
 };
 
 const logout = async (userId: string) => {
-  await prisma.user.update({
-    where: { id: userId },
-    data: { tokenVersion: { increment: 1 } },
-  });
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { tokenVersion: { increment: 1 } },
+    });
+  } catch {
+    return;
+  }
 };
-
 export const AuthService = {
   register,
   login,

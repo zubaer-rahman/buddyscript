@@ -39,6 +39,7 @@ export interface Reply {
   author: Author;
   replies?: never;
   likes?: ReplyLike[];
+  likeCount?: number;
   createdAt: string;
 }
 
@@ -48,6 +49,7 @@ export interface Comment {
   author: Author;
   replies: Reply[];
   likes?: CommentLike[];
+  likeCount?: number;
   createdAt: string;
 }
 
@@ -59,6 +61,9 @@ export interface Post {
   author: Author;
   comments: Comment[];
   likes: Like[];
+  likeCount?: number;
+  commentCount?: number;
+  isLikedByMe?: boolean;
   createdAt: string;
 }
 

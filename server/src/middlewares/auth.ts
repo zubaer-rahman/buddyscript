@@ -5,6 +5,7 @@ import AppError from "../utils/AppError.js";
 import catchAsync from "../utils/catchAsync.js";
 import httpStatus from "http-status";
 import config from "../config/index.js";
+import { jwtUtils } from "../utils/jwt.js";
 
 export const auth = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -22,24 +23,27 @@ export const auth = catchAsync(
     }
 
     try {
-      const decoded = jwt.verify(token, config.jwt_access_secret as string) as {
-        id: string;
-        tokenVersion?: number;
-      };
+      const decoded = jwtUtils.verifyToken(
+        token,
+        config.jwt_access_secret as string,
+      );
+      if (!decoded.success || !decoded.data) {
+        throw new Error(decoded.error);
+      }
 
       const user = await prisma.user.findUnique({
-        where: { id: decoded.id },
+        where: { id: decoded.data.id },
         select: { id: true, tokenVersion: true },
       });
 
-      if (!user || user.tokenVersion !== (decoded.tokenVersion ?? 0)) {
+      if (!user || user.tokenVersion !== (decoded.data.tokenVersion ?? 0)) {
         throw new AppError(
           httpStatus.UNAUTHORIZED,
           "Session revoked. Please log in again.",
         );
       }
 
-      req.user = decoded;
+      req.user = decoded.data;
 
       next();
     } catch (error) {

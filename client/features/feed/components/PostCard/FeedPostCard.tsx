@@ -9,6 +9,7 @@ import { useDeletePost, usePostCardUI } from "@features/feed/hooks/usePostCard";
 import { Post } from "@shared/types";
 import { timeAgo } from "@features/feed/utils/timeAgo";
 import { CommentItem } from "./CommentItem";
+import { ReactionHeads } from "./ReactionHeads";
 
 interface FeedPostCardProps {
   post: Post;
@@ -29,7 +30,9 @@ export default function FeedPostCard({ post, currentUser }: FeedPostCardProps) {
   const {
     liked,
     likesCount,
+    likes,
     comments,
+    totalCommentsCount,
     commentText,
     setCommentText,
     showAllComments,
@@ -37,7 +40,7 @@ export default function FeedPostCard({ post, currentUser }: FeedPostCardProps) {
     handleLike,
     handleCommentSubmit,
     handleReplySubmit,
-  } = usePostCardUI(post, currentUser.id);
+  } = usePostCardUI(post, currentUser);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -55,7 +58,7 @@ export default function FeedPostCard({ post, currentUser }: FeedPostCardProps) {
   const authorAvatar = getUserAvatar(post.author);
   const postImage = post.imageUrl || null;
   const likers =
-    post.likes
+    likes
       ?.map((l) => (l.user ? `${l.user.firstName} ${l.user.lastName}` : ""))
       .filter(Boolean)
       .join(", ") || "";
@@ -277,51 +280,11 @@ export default function FeedPostCard({ post, currentUser }: FeedPostCardProps) {
         )}
       </div>
       <div className="_feed_inner_timeline_total_reacts _padd_r24 _padd_l24 _mar_b26">
-        <div className="_feed_inner_timeline_total_reacts_image">
-          {(() => {
-            const likeUsers = (post.likes ?? [])
-              .filter((l) => l.user)
-              .map((l) => l.user!);
-            const visible = likeUsers.slice(0, 5);
-            const overflow = likeUsers.length - visible.length;
-            return (
-              <>
-                {visible.map((u, i) => (
-                  <img
-                    key={u.id}
-                    src={getUserAvatar(u)}
-                    alt={`${u.firstName} ${u.lastName}`}
-                    title={`${u.firstName} ${u.lastName}`}
-                    className={
-                      i === 0 ? "_react_img1" : "_react_img _rect_img_mbl_none"
-                    }
-                    style={{ borderRadius: "50%", objectFit: "cover" }}
-                  />
-                ))}
-                {overflow > 0 && (
-                  <p
-                    className="_feed_inner_timeline_total_reacts_para"
-                    title={likers || undefined}
-                  >
-                    +{overflow}
-                  </p>
-                )}
-                {likesCount > 0 && overflow === 0 && (
-                  <p
-                    className="_feed_inner_timeline_total_reacts_para"
-                    title={likers || undefined}
-                  >
-                    {likesCount}
-                  </p>
-                )}
-              </>
-            );
-          })()}
-        </div>
+        <ReactionHeads likes={likes} likesCount={likesCount} likers={likers} />
         <div className="_feed_inner_timeline_total_reacts_txt">
           <p className="_feed_inner_timeline_total_reacts_para1">
             <Link href="#0">
-              <span>{comments.length}</span> Comment
+              <span>{totalCommentsCount}</span> Comment{totalCommentsCount !== 1 ? 's' : ''}
             </Link>
           </p>
           <p className="_feed_inner_timeline_total_reacts_para2">
